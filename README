@@ -16,3 +16,11 @@ D2000000 00000000 //set offset back to zero and end-if
 
 This program isn't really useful, I wrote it because I wanted to learn more about memory, and I always wondered as 
 a kid how the codes worked.
+
+Program usage:
+
+Save an AR code in a .AR file and write in command line:
+
+translate example.ar output.cpp
+
+The program will produce the output C++ file in the working directory.
