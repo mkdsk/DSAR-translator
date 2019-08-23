@@ -14,4 +14,5 @@ B217ACF8 00000000 //load offset 0x0217ACF8
 000000DC 00002000 //set 0x000000DC to 0x00002000
 D2000000 00000000 //set offset back to zero and end-if
 
-This program isn't really useful, I wrote it because I wanted to learn more about memory.
+This program isn't really useful, I wrote it because I wanted to learn more about memory, and I always wondered as 
+a kid how the codes worked.
