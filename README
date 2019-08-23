@@ -1,0 +1,17 @@
+This is a command line program that translates Nintendo DS Action Replay codes into readable C++ code.
+
+Action Replay were cheating devices that were plugged into the Nintendo DS's cartridge slot that would read and write
+memory to the game cartridge plugged on top of the Action Replay. They operated off of "codes", which were like
+a mini-programming language that could be used to hack various parts of games. The user entered the codes on the menu 
+and the started the game with the codes loaded. 
+
+Example Action Replay code for Mario Kart DS that increases the player speed to 300:
+
+6217ACF8 00000000 //if 0x0217ACF8 != 0x00000000 {
+B217ACF8 00000000 //load offset 0x0217ACF8
+000000D4 00002000 //set 0x000000D4 to 0x00002000
+000000D8 00002000 //set 0x000000D8 to 0x00002000
+000000DC 00002000 //set 0x000000DC to 0x00002000
+D2000000 00000000 //set offset back to zero and end-if
+
+This program isn't really useful, I wrote it because I wanted to learn more about memory.
