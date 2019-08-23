@@ -7,7 +7,7 @@ and the started the game with the codes loaded.
 
 Example Action Replay code for Mario Kart DS that increases the player speed to 300:
 
-6217ACF8 00000000 //if 0x0217ACF8 != 0x00000000 {
+6217ACF8 00000000 //if 0x0217ACF8 != 0x00000000 then:
 B217ACF8 00000000 //load offset 0x0217ACF8
 000000D4 00002000 //set 0x000000D4 to 0x00002000
 000000D8 00002000 //set 0x000000D8 to 0x00002000
