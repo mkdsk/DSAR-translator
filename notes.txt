@@ -1,0 +1,174 @@
+ARM ASM NOTES
+=============
+
+Must be saved as .s file. 
+
+Can deal with signed words, unsigned words, halfwords, and bytes. 
+Signed: Can hold positive and negative, therefore lower in range
+Unsigned: Can only hold positive and 0. 
+
+ldr: Load word
+ldrh: Load unsigned half word
+ldrsh: Load signed half word
+ldrb: Load unsigned byte
+ldrsb: Load signed byte
+
+str: Store word
+strh: Store unsigned halfword
+strsh: Store signed half word
+strb: Store unsigned byte
+strsb: Store signed byte
+
+REGISTERS
+=========
+
+R0-General purpose
+R1-General purpose
+R2-General purpose
+R3-General purpose
+R4-General purpose
+R5-General purpose
+R6-General purpose
+R7-Holds syscall number
+R8-General purpose
+R9-General purpose
+R10-General purpose
+R11 (FP)-Frame Pointer 
+R12 (IP)-Intra Procedural Call
+R13 (SP)-Stack Pointer
+R14 (LR)-Link Register
+R15 (PC)-Program Counter
+CPSR-Current Program Status Register
+
+The function calling convention on ARM specifies that the
+first four arguments of a function are stored in the registers r0-r3.
+
+R13 (SP): The stack pointer points to the top of the stack. Used for function
+specific storage, which is reclaimed when the function returns. Used for allocating
+space on the stack, subtracting the value in bytes of which we want to allocate. 
+If we want to allocate a 32 bit value, we subtract 4 from the SP. 
+
+R14 (LR): When a function call is made, the Link Register gets 
+updated with a memory address referencing the next instruction where the function was
+initiated from. Doing this allows the program return to the “parent” function that initiated 
+the “child” function call after the “child” function is finished.
+
+R15 (PC): The Program Counter is automatically incremented by the size of the 
+instruction executed. This size is always 4 bytes in ARM state and 2 bytes in THUMB mode. When a 
+branch instruction is being executed, the PC holds the destination address. During execution, PC 
+stores the address of the current instruction plus 8 (two ARM instructions) in ARM state, and the 
+current instruction plus 4 (two Thumb instructions) in Thumb(v1) state. 
+
+
+
+
+
+
+AR CODE NOTES
+=============
+
+TYPES
+================
+
+
+0 Type: 
+0XXXXXXX YYYYYYYY --- 32bit write of YYYYYYYY to 0XXXXXXX.
+Example: 023D6B28 3B9ACA00
+int* ptr = (int*) 0x023D6B28;
+*ptr = 0x3B9ACA00;
+
+1 Type: Same as 0 type but is a 16 bit write (YYYY) 023D6B28 00002710
+2 Type: Same as 0 type but is a 8 bit write (YY) 023D6B28 00000010
+
+3 Type (Conditional)
+Format: 3XXXXXXXX YYYYYYYYY --- 32bit if less than.
+Example: 323D6B28 10000000
+if(*(int*) 0x323D6B28 < 0x10000000)
+
+More Conditionals, must be ended eventually
+4 Type: If Greater Than
+5 Type: If Equal To
+6 Type: If Not Equal To
+7 Type: 16bit (YYYY) If Less Than
+8 Type: 16bit (YYYY) If Greater Than
+9 Type: 16 bit (YYYY) If Equal To
+A Type: 16 bit (YYYY) Not Equal To
+
+B Type:
+BXXXXXXX 00000000 --- Load Offset Register
+The address at XXXXXXXX is the offset for the next lines until a D2 type. 
+B23D6B28 00000000
+00002000 0001869F
+D2000000 00000000
+*offset = (int*) 0x023D6B28;
+*offset + (int*) 0x00002000 = 0x0001869F;
+ResetOffset();
+
+C Type: 
+C0000000 ZZZZZZZZ --- Writes value to address, then continues to write it Z number of times to all
+addresses at an offset determined by the D6, D7, D8, or DC type following it. 
+C0000000 00000005 //5 times
+023D6B28 0009896C //write 9896c to 23d6b28 
+DC000000 00000010 // ???
+D2000000 00000000 // end C type
+
+D0 Type: 
+D0000000 00000000 --- Ends most recent conditional
+
+D1 Type: 
+D1000000 00000000 --- Ends all conditionals within a C type (if statements)
+
+94000130 FFFB0000 // 16bit if equal to
+C0000000 00000010 // repeat 10
+8453DA0C 00000200 // 16bit if greater than
+023D6B28 0009896C // write value
+D6000000 00000005 // ???
+D1000000 00000000 // terminate conditionals C, 8, 0, D6.
+
+The C line, 8 line, 0 line, and D6 line would be terminated.
+
+D2 Type:
+D2000000 00000000 --- Ends all conditionals and repeats before it and resets offset/stored to 0.
+
+D3 Type:
+D3000000 XXXXXXXX --- Sets offset to address XXXXXXXX
+
+D4 Type:
+D4000000 YYYYYYYY --- Adds YYYYYYYY to the value at the address defined by lines D3, D9, DA, and DB
+
+D5 Type: 
+D5000000 YYYYYYYY --- Makes the address defined by lines D3, D9, DA, and DB to YYYYYYYY
+
+STORE TYPES (VARIABLES):
+
+DC Type: (32 bit store, increment by V)
+DC000000 VVVVVVVV --- Stores the value at addresses before it and to addresses in increments of V. 
+Used with the C, D3, D5, D9, D8, DB types.
+
+D6 Type: (32 bit store, increment by 4)
+D6000000 XXXXXXXX --- Stores the value at address XXXXXXXX and to addresses in increments of 4. 
+
+D7 Type: (16 bit store, increment by 2)
+D7000000 XXXXXXXX --- Stores 2 bytes of the value at address XXXXXXXX and to addresses in increments of 2.
+
+D8 Type: (8 bit store, increment by 1)
+D8000000 XXXXXXXX --- Stores 1 byte of the value at address XXXXXXXX and to addresses in increments of 1.
+
+D9 Type: (32 bit load)
+D9000000 XXXXXXXX --- Loads the value from address X.
+
+DA Type: (16 bit load)
+DA000000 XXXXXXXX --- Loads 2 bytes from address X into value
+
+DB Type: (8 bit load)
+DB000000 XXXXXXXX --- Loads 1 bytes from address X into value
+
+=================================
+
+E Type: (conditional)
+EXXXXXXX UUUUUUUU
+YYYYYYYY YYYYYYYY
+--- Writes U bytes of address Y to address X. )
+
+F Type: (conditional)
+FXXXXXXX UUUUUUUU --- Writes U bytes from the offset to address at XXXXXXX.
